@@ -1,0 +1,1138 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <h2 class="mb-4">Crime Analytics Dashboard</h2>
+    
+    <!-- Filters -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h5 class="card-title mb-3">Filters</h5>
+            <div class="row g-3">
+                <div class="col-md-2">
+                    <label for="batchNumberFilter" class="form-label">Batch Number</label>
+                    <select class="form-select" id="batchNumberFilter">
+                        <option value="">All Batch Numbers</option>
+                        {% for batch in batch_numbers %}
+                        <option value="{{ batch }}">{{ batch }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="yearFilter" class="form-label">Year</label>
+                    <select class="form-select" id="yearFilter">
+                        <option value="">All Years</option>
+                        {% for year in years %}
+                        <option value="{{ year }}">{{ year }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="barangayFilter" class="form-label">Barangay</label>
+                    <select class="form-select" id="barangayFilter">
+                        <option value="">All Barangays</option>
+                        {% for barangay in barangays %}
+                        <option value="{{ barangay }}">{{ barangay }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="crimeTypeFilter" class="form-label">Crime Type</label>
+                    <select class="form-select" id="crimeTypeFilter">
+                        <option value="">All Crime Types</option>
+                        {% for crime_type in crime_types %}
+                        <option value="{{ crime_type }}">{{ crime_type }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="statusFilter" class="form-label">Status</label>
+                    <select class="form-select" id="statusFilter">
+                        <option value="">All Statuses</option>
+                        {% for status in statuses %}
+                        <option value="{{ status }}">{{ status }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row g-4">
+        <!-- Total Crimes Over Time -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Total Crimes Over Time</h5>
+                    <div class="chart-container" style="height: 250px;">
+                        <canvas id="crimesOverTimeChart"></canvas>
+                    </div>
+                    <div class="insight-box mt-3">
+                        <h6>Insights:</h6>
+                        <p id="crimesOverTimeInsight" class="mb-0">Loading...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Crime Type Distribution -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Crime Type Distribution</h5>
+                    <div class="chart-container" style="height: 250px;">
+                        <canvas id="crimeTypeChart"></canvas>
+                    </div>
+                    <div class="insight-box mt-3">
+                        <h6>Insights:</h6>
+                        <p id="crimeTypeInsight" class="mb-0">Loading...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Crime Density -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Crime Density</h5>
+                    <div class="chart-container" style="height: 250px;">
+                        <canvas id="crimeDensityChart"></canvas>
+                    </div>
+                    <div class="insight-box mt-3">
+                        <h6>Insights:</h6>
+                        <p id="crimeDensityInsight" class="mb-0">Loading...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Crime Rate by Barangay -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Crime Rate by Barangay</h5>
+                    <div class="chart-container" style="height: 250px;">
+                        <canvas id="crimeRateChart"></canvas>
+                    </div>
+                    <div class="insight-box mt-3">
+                        <h6>Insights:</h6>
+                        <p id="crimeRateInsight" class="mb-0">Loading...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Crime Type by Barangay -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Crime Type by Barangay</h5>
+                    <div class="chart-container" style="height: 250px;">
+                        <canvas id="crimeTypeByBarangayChart"></canvas>
+                    </div>
+                    <div class="insight-box mt-3">
+                        <h6>Insights:</h6>
+                        <p id="crimeTypeByBarangayInsight" class="mb-0">Loading...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Time of Day Distribution -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Time of Day Distribution</h5>
+                    <div class="chart-container" style="height: 250px;">
+                        <canvas id="timeOfDayChart"></canvas>
+                    </div>
+                    <div class="insight-box mt-3">
+                        <h6>Insights:</h6>
+                        <p id="timeOfDayInsight" class="mb-0">Loading...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Crime Resolution Status -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Crime Resolution Status</h5>
+                    <div class="chart-container" style="height: 250px;">
+                        <canvas id="resolutionStatusChart"></canvas>
+                    </div>
+                    <div class="insight-box mt-3">
+                        <h6>Insights:</h6>
+                        <p id="resolutionStatusInsight" class="mb-0">Loading...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Place Type Distribution -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Place Type Distribution</h5>
+                    <div class="chart-container" style="height: 250px;">
+                        <canvas id="placeTypeChart"></canvas>
+                    </div>
+                    <div class="insight-box mt-3">
+                        <h6>Insights:</h6>
+                        <p id="placeTypeInsight" class="mb-0">Loading...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Clustering Analysis Section -->
+    <div class="card shadow-sm mt-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Clustering Analysis</h5>
+        </div>
+        <div class="card-body">
+            <!-- Show currently applied filters -->
+            <div class="alert alert-info mb-3" id="clusteringFiltersSummary">
+                <strong>Current Filters:</strong> <span id="clusteringFiltersText">All Data</span>
+            </div>
+            <div class="row g-4">
+                <!-- Crime Rate Clustering -->
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h6 class="card-title mb-0">Crime Rate Clustering</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <strong>Optimal Clusters:</strong> <span id="crimeRateOptimalClusters">N/A</span>
+                                <br>
+                                <strong>Silhouette Score:</strong> <span id="crimeRateSilhouetteScore">N/A</span>
+                                <br>
+                                <strong>DBSCAN Clusters:</strong> <span id="dbscanCrimeRateClusters">N/A</span>
+                                <br>
+                                <strong>DBSCAN Noise Points:</strong> <span id="dbscanCrimeRateNoise">N/A</span>
+                                <br>
+                                <strong>DBSCAN Silhouette:</strong> <span id="dbscanCrimeRateSilhouette">N/A</span>
+                            </div>
+                            <div class="chart-container" style="height: 300px;">
+                                <canvas id="crimeRateClustersChart"></canvas>
+                            </div>
+                            <div class="table-responsive mt-3">
+                                <table class="table table-sm" id="crimeRateClustersTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Cluster</th>
+                                            <th>Label</th>
+                                            <th>Barangays</th>
+                                            <th>Avg. Crime Rate</th>
+                                            <th>Total Crimes</th>
+                                            <th>Total Population</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                            <div class="insight-box mt-3">
+                                <h6>Insights:</h6>
+                                <p id="crimeRateClustersInsight" class="mb-0">Loading...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hotspot Clustering -->
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h6 class="card-title mb-0">Hotspot Clustering</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <strong>Optimal Clusters:</strong> <span id="hotspotOptimalClusters">N/A</span>
+                                <br>
+                                <strong>Silhouette Score:</strong> <span id="hotspotSilhouetteScore">N/A</span>
+                                <br>
+                                <strong>DBSCAN Clusters:</strong> <span id="dbscanHotspotClusters">N/A</span>
+                                <br>
+                                <strong>DBSCAN Noise Points:</strong> <span id="dbscanHotspotNoise">N/A</span>
+                                <br>
+                                <strong>DBSCAN Silhouette:</strong> <span id="dbscanHotspotSilhouette">N/A</span>
+                            </div>
+                            <div class="chart-container" style="height: 300px;">
+                                <canvas id="hotspotClustersChart"></canvas>
+                            </div>
+                            <div class="table-responsive mt-3">
+                                <table class="table table-sm" id="hotspotClustersTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Cluster</th>
+                                            <th>Label</th>
+                                            <th>Barangays</th>
+                                            <th>Total Crimes</th>
+                                            <th>Most Common Pattern</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                            <div class="insight-box mt-3">
+                                <h6>Insights:</h6>
+                                <p id="hotspotClustersInsight" class="mb-0">Loading...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Crime Type Clustering -->
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="card-title mb-0">Crime Type Clustering</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <strong>Optimal Clusters:</strong> <span id="crimeTypeOptimalClusters">N/A</span>
+                                <br>
+                                <strong>Silhouette Score:</strong> <span id="crimeTypeSilhouetteScore">N/A</span>
+                                <br>
+                                <strong>DBSCAN Clusters:</strong> <span id="dbscanCrimeTypeClusters">N/A</span>
+                                <br>
+                                <strong>DBSCAN Noise Points:</strong> <span id="dbscanCrimeTypeNoise">N/A</span>
+                                <br>
+                                <strong>DBSCAN Silhouette:</strong> <span id="dbscanCrimeTypeSilhouette">N/A</span>
+                            </div>
+                            <div class="chart-container" style="height: 400px;">
+                                <canvas id="crimeTypeClustersChart"></canvas>
+                            </div>
+                            <div class="table-responsive mt-3">
+                                <table class="table table-sm" id="crimeTypeClustersTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Cluster</th>
+                                            <th>Label</th>
+                                            <th>Barangays</th>
+                                            <th>Top Crime Types</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                            <div class="insight-box mt-3">
+                                <h6>Insights:</h6>
+                                <p id="crimeTypeClustersInsight" class="mb-0">Loading...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.chart-container {
+    position: relative;
+    margin: auto;
+}
+.insight-box {
+    background-color: #f8f9fa;
+    border-left: 4px solid #007bff;
+    padding: 15px;
+    font-size: 0.9rem;
+}
+.card {
+    transition: transform 0.2s;
+}
+.card:hover {
+    transform: translateY(-5px);
+}
+
+/* Clustering Analysis Styles */
+.cluster-badge {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    margin-right: 0.5rem;
+}
+
+.cluster-0 { background-color: #FFB6C1; }
+.cluster-1 { background-color: #98FB98; }
+.cluster-2 { background-color: #87CEEB; }
+.cluster-3 { background-color: #DDA0DD; }
+.cluster-4 { background-color: #F0E68C; }
+
+#hotspotMap {
+    display: none;
+}
+</style>
+
+<!-- Remove Leaflet since we're not using it anymore -->
+<script>
+    // Initialize charts
+    let crimesOverTimeChart, crimeTypeChart, crimeDensityChart, crimeRateChart, 
+        crimeTypeByBarangayChart, timeOfDayChart, resolutionStatusChart, placeTypeChart;
+    let crimeRateClustersChart, hotspotClustersChart, crimeTypeClustersChart;
+
+    // Function to update all charts
+    function updateCharts() {
+        const batchNumber = document.getElementById('batchNumberFilter').value;
+        const year = document.getElementById('yearFilter').value;
+        const barangay = document.getElementById('barangayFilter').value;
+        const crimeType = document.getElementById('crimeTypeFilter').value;
+        const status = document.getElementById('statusFilter').value;
+
+        fetch(`/api/dashboard-data?batch_number=${batchNumber}&year=${year}&barangay=${barangay}&crime_type=${crimeType}&status=${status}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    console.error('Server error:', data.error);
+                    return;
+                }
+                updateCrimesOverTime(data.crimes_over_time || { labels: [], values: [], insight: 'No data available' });
+                updateCrimeType(data.crime_type || { labels: [], values: [], insight: 'No data available' });
+                updateCrimeDensity(data.crime_density || { labels: [], values: [], insight: 'No data available' });
+                updateCrimeRate(data.crime_rate || { labels: [], values: [], insight: 'No data available' });
+                updateCrimeTypeByBarangay(data.crime_type_by_barangay || { labels: [], datasets: [], insight: 'No data available' });
+                updateTimeOfDay(data.time_of_day || { labels: [], values: [], insight: 'No data available' });
+                updateResolutionStatus(data.resolution_status || { labels: [], values: [], insight: 'No data available' });
+                updatePlaceType(data.place_type || { labels: [], values: [], insight: 'No data available' });
+                updateRiskAnalysis(data.risk_analysis || { results: [], insight: 'No risk analysis available' });
+                updatePatternAnalysis(data.pattern_analysis || { results: [], insight: 'No pattern analysis available' });
+            })
+            .catch(error => {
+                console.error('Error fetching dashboard data:', error);
+                // Show error message to user
+                const errorMessage = 'Error loading dashboard data. Please try again.';
+                document.querySelector('.insight-text').textContent = errorMessage;
+            });
+    }
+
+    // Update Crimes Over Time Chart
+    function updateCrimesOverTime(data) {
+        const ctx = document.getElementById('crimesOverTimeChart').getContext('2d');
+        if (crimesOverTimeChart) crimesOverTimeChart.destroy();
+        crimesOverTimeChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    label: 'Total Crimes',
+                    data: data.values,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+        const insightElement = document.getElementById('crimesOverTimeInsight');
+        if (insightElement) {
+            insightElement.textContent = data.insight;
+        }
+    }
+
+    // Update Crime Type Chart
+    function updateCrimeType(data) {
+        const ctx = document.getElementById('crimeTypeChart').getContext('2d');
+        if (crimeTypeChart) crimeTypeChart.destroy();
+        crimeTypeChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    data: data.values,
+                    backgroundColor: [
+                        'rgb(255, 99, 132)',
+                        'rgb(54, 162, 235)',
+                        'rgb(255, 205, 86)',
+                        'rgb(75, 192, 192)',
+                        'rgb(153, 102, 255)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+        const insightElement = document.getElementById('crimeTypeInsight');
+        if (insightElement) {
+            insightElement.textContent = data.insight;
+        }
+    }
+
+    // Update Crime Density Chart
+    function updateCrimeDensity(data) {
+        const ctx = document.getElementById('crimeDensityChart').getContext('2d');
+        if (crimeDensityChart) crimeDensityChart.destroy();
+        crimeDensityChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    label: 'Number of Crimes',
+                    data: data.values,
+                    backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                    borderColor: 'rgb(75, 192, 192)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Crimes'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Barangay'
+                        }
+                    }
+                }
+            }
+        });
+        const insightElement = document.getElementById('crimeDensityInsight');
+        if (insightElement) {
+            insightElement.textContent = data.insight;
+        }
+    }
+
+    // Update Crime Rate Chart
+    function updateCrimeRate(data) {
+        const ctx = document.getElementById('crimeRateChart').getContext('2d');
+        if (crimeRateChart) crimeRateChart.destroy();
+        crimeRateChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    label: 'Crime Rate per 100,000',
+                    data: data.values,
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+        const insightElement = document.getElementById('crimeRateInsight');
+        if (insightElement) {
+            insightElement.textContent = data.insight;
+        }
+    }
+
+    // Update Crime Type by Barangay Chart
+    function updateCrimeTypeByBarangay(data) {
+        const ctx = document.getElementById('crimeTypeByBarangayChart').getContext('2d');
+        if (crimeTypeByBarangayChart) crimeTypeByBarangayChart.destroy();
+        crimeTypeByBarangayChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.labels,
+                datasets: data.datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        stacked: true
+                    },
+                    y: {
+                        stacked: true
+                    }
+                }
+            }
+        });
+        const insightElement = document.getElementById('crimeTypeByBarangayInsight');
+        if (insightElement) {
+            insightElement.textContent = data.insight;
+        }
+    }
+
+    // Update Time of Day Chart
+    function updateTimeOfDay(data) {
+        const ctx = document.getElementById('timeOfDayChart').getContext('2d');
+        if (timeOfDayChart) timeOfDayChart.destroy();
+        timeOfDayChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    label: 'Crimes by Hour',
+                    data: data.values,
+                    borderColor: 'rgb(153, 102, 255)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+        const insightElement = document.getElementById('timeOfDayInsight');
+        if (insightElement) {
+            insightElement.textContent = data.insight;
+        }
+    }
+
+    // Update Resolution Status Chart
+    function updateResolutionStatus(data) {
+        const ctx = document.getElementById('resolutionStatusChart').getContext('2d');
+        if (resolutionStatusChart) resolutionStatusChart.destroy();
+        resolutionStatusChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    data: data.values,
+                    backgroundColor: [
+                        'rgb(255, 99, 132)',
+                        'rgb(54, 162, 235)',
+                        'rgb(255, 205, 86)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+        const insightElement = document.getElementById('resolutionStatusInsight');
+        if (insightElement) {
+            insightElement.textContent = data.insight;
+        }
+    }
+
+    // Update Place Type Chart
+    function updatePlaceType(data) {
+        const ctx = document.getElementById('placeTypeChart').getContext('2d');
+        if (placeTypeChart) placeTypeChart.destroy();
+        placeTypeChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    label: 'Place Type Distribution',
+                    data: data.values,
+                    backgroundColor: 'rgba(75, 192, 192, 0.5)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+        const insightElement = document.getElementById('placeTypeInsight');
+        if (insightElement) {
+            insightElement.textContent = data.insight;
+        }
+    }
+
+    function updateRiskAnalysis(data) {
+        const results = data.results;
+        const insight = data.insight;
+
+        // Update insight
+        const insightElement = document.getElementById('riskAnalysisInsight');
+        if (insightElement) {
+            insightElement.textContent = insight;
+        }
+
+        // Update table
+        const tbody = document.querySelector('#riskAnalysisTable tbody');
+        if (tbody) {
+            tbody.innerHTML = '';
+            
+            results.forEach(result => {
+                const row = document.createElement('tr');
+                
+                // Add risk level class
+                let riskClass = '';
+                switch(result.risk_level) {
+                    case 'High Risk':
+                        riskClass = 'table-danger';
+                        break;
+                    case 'Medium Risk':
+                        riskClass = 'table-warning';
+                        break;
+                    case 'Low Risk':
+                        riskClass = 'table-success';
+                        break;
+                }
+                row.className = riskClass;
+                
+                row.innerHTML = `
+                    <td>${result.barangay}</td>
+                    <td>${result.crime_rate}</td>
+                    <td>${result.top_place_types}</td>
+                    <td><span class="badge ${riskClass.replace('table-', 'bg-')}">${result.risk_level}</span></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+    }
+
+    function updatePatternAnalysis(data) {
+        const results = data.results;
+        const insight = data.insight;
+
+        // Update insight
+        const insightElement = document.getElementById('patternAnalysisInsight');
+        if (insightElement) {
+            insightElement.textContent = insight;
+        }
+
+        // Update table
+        const tbody = document.querySelector('#patternAnalysisTable tbody');
+        if (tbody) {
+            tbody.innerHTML = '';
+            
+            results.forEach(result => {
+                const row = document.createElement('tr');
+                
+                // Add pattern cluster class
+                let patternClass = '';
+                switch(result.pattern_cluster) {
+                    case 1:
+                        patternClass = 'table-primary';
+                        break;
+                    case 2:
+                        patternClass = 'table-info';
+                        break;
+                    case 3:
+                        patternClass = 'table-secondary';
+                        break;
+                }
+                row.className = patternClass;
+                
+                row.innerHTML = `
+                    <td>${result.barangay}</td>
+                    <td><span class="badge ${patternClass.replace('table-', 'bg-')}">Pattern ${result.pattern_cluster}</span></td>
+                    <td>${result.top_crime_types}</td>
+                    <td>${result.cluster_pattern}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+    }
+
+    // Event listeners for filters
+    document.getElementById('batchNumberFilter').addEventListener('change', updateCharts);
+    document.getElementById('yearFilter').addEventListener('change', updateCharts);
+    document.getElementById('barangayFilter').addEventListener('change', updateCharts);
+    document.getElementById('crimeTypeFilter').addEventListener('change', updateCharts);
+    document.getElementById('statusFilter').addEventListener('change', updateCharts);
+
+    // Initial load
+    updateCharts();
+
+    // Function to get all filter values
+    function getFilters() {
+        return {
+            batch_number: document.getElementById('batchNumberFilter').value,
+            year: document.getElementById('yearFilter').value,
+            barangay: document.getElementById('barangayFilter').value,
+            crime_type: document.getElementById('crimeTypeFilter').value,
+            status: document.getElementById('statusFilter').value
+        };
+    }
+
+    // Function to update clustering analysis
+    function updateClusteringAnalysis() {
+        const filters = getFilters();
+        // Show current filters summary
+        const filterLabels = [];
+        if (filters.batch_number) filterLabels.push(`Batch: ${filters.batch_number}`);
+        if (filters.year) filterLabels.push(`Year: ${filters.year}`);
+        if (filters.barangay) filterLabels.push(`Barangay: ${filters.barangay}`);
+        if (filters.crime_type) filterLabels.push(`Crime Type: ${filters.crime_type}`);
+        if (filters.status) filterLabels.push(`Status: ${filters.status}`);
+        document.getElementById('clusteringFiltersText').textContent = filterLabels.length ? filterLabels.join(', ') : 'All Data';
+        
+        // Show loading state
+        document.querySelectorAll('.insight-box p').forEach(el => {
+            el.textContent = 'Loading...';
+        });
+        
+        fetch(`/api/clustering-analysis?${new URLSearchParams(filters)}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    console.error('Error:', data.error);
+                    throw new Error(data.error);
+                }
+                
+                // Update Crime Rate Clusters
+                updateCrimeRateClusters(data.crime_rate_clusters, data.crime_rate_metrics);
+                
+                // Update Hotspot Clusters
+                updateHotspotClusters(data.hotspot_clusters, data.hotspot_metrics);
+                
+                // Update Crime Type Clusters
+                updateCrimeTypeClusters(data.crime_type_clusters, data.crime_type_metrics);
+                
+                // Update optimal clusters information
+                document.getElementById('crimeRateOptimalClusters').textContent = 
+                    data.crime_rate_optimal_clusters || 'N/A';
+                document.getElementById('hotspotOptimalClusters').textContent = 
+                    data.hotspot_optimal_clusters || 'N/A';
+                document.getElementById('crimeTypeOptimalClusters').textContent = 
+                    data.crime_type_optimal_clusters || 'N/A';
+
+                // Show DBSCAN metrics for Crime Rate
+                const dbscanCR = data.dbscan?.crime_rate?.metrics || {};
+                document.getElementById('dbscanCrimeRateClusters').textContent = dbscanCR.n_clusters ?? 'N/A';
+                document.getElementById('dbscanCrimeRateNoise').textContent = dbscanCR.n_noise ?? 'N/A';
+                document.getElementById('dbscanCrimeRateSilhouette').textContent = (dbscanCR.silhouette !== undefined && dbscanCR.silhouette !== null)
+                    ? dbscanCR.silhouette.toFixed(3)
+                    : 'N/A';
+
+                // Show DBSCAN metrics for Hotspot
+                const dbscanHS = data.dbscan?.hotspot?.metrics || {};
+                document.getElementById('dbscanHotspotClusters').textContent = dbscanHS.n_clusters ?? 'N/A';
+                document.getElementById('dbscanHotspotNoise').textContent = dbscanHS.n_noise ?? 'N/A';
+                document.getElementById('dbscanHotspotSilhouette').textContent = (dbscanHS.silhouette !== undefined && dbscanHS.silhouette !== null)
+                    ? dbscanHS.silhouette.toFixed(3)
+                    : 'N/A';
+
+                // Show DBSCAN metrics for Crime Type
+                const dbscanCT = data.dbscan?.crime_type?.metrics || {};
+                document.getElementById('dbscanCrimeTypeClusters').textContent = dbscanCT.n_clusters ?? 'N/A';
+                document.getElementById('dbscanCrimeTypeNoise').textContent = dbscanCT.n_noise ?? 'N/A';
+                document.getElementById('dbscanCrimeTypeSilhouette').textContent = (dbscanCT.silhouette !== undefined && dbscanCT.silhouette !== null)
+                    ? dbscanCT.silhouette.toFixed(3)
+                    : 'N/A';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Show error message to user
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'alert alert-danger';
+                errorDiv.textContent = 'Error updating clustering analysis. Please try again.';
+                document.querySelector('.container').prepend(errorDiv);
+                setTimeout(() => errorDiv.remove(), 5000);
+                
+                // Reset loading states
+                document.querySelectorAll('.insight-box p').forEach(el => {
+                    el.textContent = 'Error loading data. Please try again.';
+                });
+            });
+    }
+
+    function updateCrimeRateClusters(clusters, metrics) {
+        if (!clusters) return;
+        
+        // Update metrics
+        document.getElementById('crimeRateSilhouetteScore').textContent = 
+            metrics?.silhouette ? metrics.silhouette[metrics.silhouette.length - 1].toFixed(3) : 'N/A';
+        
+        // Group by cluster
+        const clusterGroups = {};
+        clusters.forEach(item => {
+            if (!clusterGroups[item.cluster]) {
+                clusterGroups[item.cluster] = {
+                    barangays: [],
+                    rates: [],
+                    counts: [],
+                    populations: [],
+                    label: item.cluster_label || `Cluster ${item.cluster}`
+                };
+            }
+            clusterGroups[item.cluster].barangays.push(item.barangay);
+            clusterGroups[item.cluster].rates.push(item.crime_rate);
+            clusterGroups[item.cluster].counts.push(item.crime_count);
+            clusterGroups[item.cluster].populations.push(item.population);
+        });
+        
+        // Generate insights
+        const insights = [];
+        Object.entries(clusterGroups).forEach(([cluster, data]) => {
+            const avgRate = data.rates.reduce((a, b) => a + b, 0) / data.rates.length;
+            const totalCrimes = data.counts.reduce((a, b) => a + b, 0);
+            const totalPopulation = data.populations.reduce((a, b) => a + b, 0);
+            
+            insights.push(`${data.label}: ${data.barangays.length} barangays with average crime rate of ${avgRate.toFixed(2)} per 100,000. Total of ${totalCrimes} crimes affecting ${totalPopulation.toLocaleString()} people.`);
+        });
+        
+        // Update insights
+        document.getElementById('crimeRateClustersInsight').textContent = insights.join(' ');
+        
+        // Update chart
+        const ctx = document.getElementById('crimeRateClustersChart').getContext('2d');
+        if (crimeRateClustersChart) crimeRateClustersChart.destroy();
+        crimeRateClustersChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(clusterGroups).map(c => clusterGroups[c].label),
+                datasets: [{
+                    label: 'Average Crime Rate',
+                    data: Object.values(clusterGroups).map(g => 
+                        g.rates.reduce((a, b) => a + b, 0) / g.rates.length
+                    ),
+                    backgroundColor: Object.keys(clusterGroups).map(c => 
+                        `rgba(${c * 50}, ${255 - c * 50}, ${c * 30}, 0.7)`
+                    )
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Crime Rate (per 100,000)'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Update table
+        const tbody = document.getElementById('crimeRateClustersTable').querySelector('tbody');
+        tbody.innerHTML = '';
+        Object.entries(clusterGroups).forEach(([cluster, data]) => {
+            const row = tbody.insertRow();
+            row.insertCell(0).textContent = `Cluster ${cluster}`;
+            row.insertCell(1).textContent = data.label;
+            row.insertCell(2).textContent = data.barangays.join(', ');
+            row.insertCell(3).textContent = (data.rates.reduce((a, b) => a + b, 0) / data.rates.length).toFixed(2);
+            row.insertCell(4).textContent = data.counts.reduce((a, b) => a + b, 0);
+            row.insertCell(5).textContent = data.populations.reduce((a, b) => a + b, 0).toLocaleString();
+        });
+    }
+
+    function updateHotspotClusters(clusters, metrics) {
+        if (!clusters) return;
+        
+        // Update metrics
+        document.getElementById('hotspotSilhouetteScore').textContent = 
+            metrics?.silhouette ? metrics.silhouette[metrics.silhouette.length - 1].toFixed(3) : 'N/A';
+        
+        // Group by cluster
+        const clusterGroups = {};
+        clusters.forEach(item => {
+            if (!clusterGroups[item.cluster]) {
+                clusterGroups[item.cluster] = {
+                    barangays: [],
+                    crimeCounts: [],
+                    temporalPatterns: [],
+                    label: item.cluster_label || `Cluster ${item.cluster}`
+                };
+            }
+            clusterGroups[item.cluster].barangays.push(item.barangay);
+            clusterGroups[item.cluster].crimeCounts.push(item.crime_count);
+            clusterGroups[item.cluster].temporalPatterns.push(item.temporal_pattern);
+        });
+        
+        // Generate insights
+        const insights = [];
+        Object.entries(clusterGroups).forEach(([cluster, data]) => {
+            const totalCrimes = data.crimeCounts.reduce((a, b) => a + b, 0);
+            const avgCrimes = totalCrimes / data.barangays.length;
+            
+            // Get most common temporal pattern
+            const patternCounts = {};
+            data.temporalPatterns.forEach(pattern => {
+                patternCounts[pattern] = (patternCounts[pattern] || 0) + 1;
+            });
+            const mostCommonPattern = Object.entries(patternCounts)
+                .sort((a, b) => b[1] - a[1])[0][0];
+            
+            insights.push(`${data.label}: ${data.barangays.length} barangays with average of ${avgCrimes.toFixed(1)} crimes each. Most common pattern: ${mostCommonPattern}.`);
+        });
+        
+        // Update insights
+        document.getElementById('hotspotClustersInsight').textContent = insights.join(' ');
+        
+        // Update chart
+        const ctx = document.getElementById('hotspotClustersChart').getContext('2d');
+        if (hotspotClustersChart) hotspotClustersChart.destroy();
+        hotspotClustersChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(clusterGroups).map(c => clusterGroups[c].label),
+                datasets: [{
+                    label: 'Total Crimes',
+                    data: Object.values(clusterGroups).map(g => 
+                        g.crimeCounts.reduce((a, b) => a + b, 0)
+                    ),
+                    backgroundColor: Object.keys(clusterGroups).map(c => 
+                        `rgba(${c * 50}, ${255 - c * 50}, ${c * 30}, 0.7)`
+                    )
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Total Crimes'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Update table
+        const tbody = document.getElementById('hotspotClustersTable').querySelector('tbody');
+        tbody.innerHTML = '';
+        Object.entries(clusterGroups).forEach(([cluster, data]) => {
+            const row = tbody.insertRow();
+            row.insertCell(0).textContent = `Cluster ${cluster}`;
+            row.insertCell(1).textContent = data.label;
+            row.insertCell(2).textContent = data.barangays.join(', ');
+            row.insertCell(3).textContent = data.crimeCounts.reduce((a, b) => a + b, 0);
+            
+            // Get most common temporal pattern
+            const patternCounts = {};
+            data.temporalPatterns.forEach(pattern => {
+                patternCounts[pattern] = (patternCounts[pattern] || 0) + 1;
+            });
+            const mostCommonPattern = Object.entries(patternCounts)
+                .sort((a, b) => b[1] - a[1])[0][0];
+            
+            row.insertCell(4).textContent = mostCommonPattern;
+        });
+    }
+
+    function updateCrimeTypeClusters(clusters, metrics) {
+        if (!clusters) return;
+        
+        // Update metrics
+        document.getElementById('crimeTypeSilhouetteScore').textContent = 
+            metrics?.silhouette ? metrics.silhouette[metrics.silhouette.length - 1].toFixed(3) : 'N/A';
+        
+        // Group by cluster
+        const clusterGroups = {};
+        clusters.forEach(item => {
+            if (!clusterGroups[item.cluster]) {
+                clusterGroups[item.cluster] = {
+                    barangays: [],
+                    crimeTypes: {},
+                    label: item.cluster_label || `Cluster ${item.cluster}`,
+                    pattern: item.cluster_pattern || {}
+                };
+            }
+            clusterGroups[item.cluster].barangays.push(item.barangay);
+            
+            // Aggregate crime types from crime_distribution
+            if (item.crime_distribution) {
+                Object.entries(item.crime_distribution).forEach(([type, pct]) => {
+                    if (!clusterGroups[item.cluster].crimeTypes[type]) {
+                        clusterGroups[item.cluster].crimeTypes[type] = 0;
+                    }
+                    clusterGroups[item.cluster].crimeTypes[type] += pct;
+                });
+            }
+        });
+        
+        // Generate insights
+        const insights = [];
+        Object.entries(clusterGroups).forEach(([cluster, data]) => {
+            // Get top 3 crime types
+            const topCrimeTypes = Object.entries(data.pattern)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 3)
+                .map(([type, pct]) => `${type} (${pct.toFixed(1)}%)`);
+            
+            insights.push(`${data.label}: ${data.barangays.length} barangays with dominant crime types: ${topCrimeTypes.join(', ')}.`);
+        });
+        
+        // Update insights
+        document.getElementById('crimeTypeClustersInsight').textContent = insights.join(' ');
+        
+        // Update chart
+        const ctx = document.getElementById('crimeTypeClustersChart').getContext('2d');
+        if (crimeTypeClustersChart) crimeTypeClustersChart.destroy();
+        crimeTypeClustersChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(clusterGroups).map(c => clusterGroups[c].label),
+                datasets: Object.values(clusterGroups).map(g => ({
+                    label: g.label,
+                    data: Object.values(g.crimeTypes),
+                    backgroundColor: `hsla(${Object.keys(g.crimeTypes).length * 360 / Object.keys(clusterGroups).length}, 70%, 50%, 0.7)`
+                }))
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        stacked: true
+                    },
+                    y: {
+                        stacked: true,
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Percentage Distribution'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Update table
+        const tbody = document.getElementById('crimeTypeClustersTable').querySelector('tbody');
+        tbody.innerHTML = '';
+        Object.entries(clusterGroups).forEach(([cluster, data]) => {
+            const row = tbody.insertRow();
+            row.insertCell(0).textContent = `Cluster ${cluster}`;
+            row.insertCell(1).textContent = data.label;
+            row.insertCell(2).textContent = data.barangays.join(', ');
+            
+            // Get top 3 crime types from cluster pattern
+            const topCrimeTypes = Object.entries(data.pattern)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 3)
+                .map(([type, pct]) => `${type} (${pct}%)`)
+                .join(', ');
+            
+            row.insertCell(3).textContent = topCrimeTypes || 'No pattern data';
+        });
+    }
+
+    // Add clustering analysis update to the filter change handler
+    document.querySelectorAll('.form-select').forEach(select => {
+        select.addEventListener('change', () => {
+            updateCharts();
+            updateClusteringAnalysis();
+        });
+    });
+
+    // Initial load
+    updateCharts();
+    updateClusteringAnalysis();
+</script>
+{% endblock %} 

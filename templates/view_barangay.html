@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header">View Barangay</div>
+        <div class="card-body">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            <form class="row g-2 mb-3" method="get">
+                <div class="col-md-3">
+                    <input type="text" class="form-control" name="search" placeholder="Search Barangay..." value="{{ search }}">
+                </div>
+                <div class="col-md-2">
+                    <input type="number" class="form-control" name="pop_min" placeholder="Min Population" value="{{ pop_min }}">
+                </div>
+                <div class="col-md-2">
+                    <input type="number" class="form-control" name="pop_max" placeholder="Max Population" value="{{ pop_max }}">
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" name="sort_by">
+                        <option value="name" {% if sort_by == 'name' %}selected{% endif %}>Sort by Name</option>
+                        <option value="population" {% if sort_by == 'population' %}selected{% endif %}>Sort by Population</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" name="sort_dir">
+                        <option value="asc" {% if sort_dir == 'asc' %}selected{% endif %}>Ascending</option>
+                        <option value="desc" {% if sort_dir == 'desc' %}selected{% endif %}>Descending</option>
+                    </select>
+                </div>
+                <div class="col-md-1">
+                    <button type="submit" class="btn btn-primary w-100">Apply</button>
+                </div>
+            </form>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle text-center">
+                    <thead class="table-light">
+                        <tr>
+                            <th>
+                                <a href="?{{ request.query_string|replace('sort_by=' ~ sort_by, 'sort_by=name')|replace('sort_dir=' ~ sort_dir, 'sort_dir=' ~ ('asc' if sort_by != 'name' or sort_dir == 'desc' else 'desc')) }}">
+                                    Barangay Name
+                                    {% if sort_by == 'name' %}<span>{% if sort_dir == 'asc' %}▲{% else %}▼{% endif %}</span>{% endif %}
+                                </a>
+                            </th>
+                            <th>
+                                <a href="?{{ request.query_string|replace('sort_by=' ~ sort_by, 'sort_by=population')|replace('sort_dir=' ~ sort_dir, 'sort_dir=' ~ ('asc' if sort_by != 'population' or sort_dir == 'desc' else 'desc')) }}">
+                                    Population
+                                    {% if sort_by == 'population' %}<span>{% if sort_dir == 'asc' %}▲{% else %}▼{% endif %}</span>{% endif %}
+                                </a>
+                            </th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in barangays %}
+                        <tr>
+                            <td class="text-center">{{ b.name }}</td>
+                            <form method="POST" class="d-flex align-items-center">
+                                <input type="hidden" name="barangay_id" value="{{ b.id }}">
+                                <td class="text-center">
+                                    <input type="number" name="population" value="{{ b.population }}" min="0" class="form-control form-control-sm mx-auto" style="width: 120px;">
+                                </td>
+                                <td class="text-center">
+                                    <button type="submit" class="btn btn-sm btn-primary">Update</button>
+                                </td>
+                            </form>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="3" class="text-center">No barangays found.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

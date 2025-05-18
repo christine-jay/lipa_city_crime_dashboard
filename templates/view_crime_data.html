@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="card">
+        <div class="card-header">View Crime Data</div>
+        <div class="card-body">
+            <form class="row g-2 mb-3" method="get">
+                <div class="col-md-2">
+                    <input type="text" class="form-control" name="search" placeholder="Search..." value="{{ search }}">
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" name="batch_number">
+                        <option value="">All Batch Numbers</option>
+                        {% for b in batch_numbers %}
+                            <option value="{{ b }}" {% if selected_batch == b %}selected{% endif %}>{{ b }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" name="barangay">
+                        <option value="">All Barangays</option>
+                        {% for b in barangays %}
+                            <option value="{{ b }}" {% if selected_barangay == b %}selected{% endif %}>{{ b }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" name="crime_type">
+                        <option value="">All Crime Types</option>
+                        {% for c in crime_types %}
+                            <option value="{{ c }}" {% if selected_crime_type == c %}selected{% endif %}>{{ c }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" name="status">
+                        <option value="">All Statuses</option>
+                        {% for s in statuses %}
+                            <option value="{{ s }}" {% if selected_status == s %}selected{% endif %}>{{ s }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Apply</button>
+                </div>
+            </form>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover table-sm align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            {% set columns = [
+                                ('crime_id', 'Crime ID'),
+                                ('barangay', 'Barangay'),
+                                ('type_of_place', 'Type of Place'),
+                                ('address', 'Address'),
+                                ('date_reported', 'Date Reported'),
+                                ('time_reported', 'Time Reported'),
+                                ('date_committed', 'Date Committed'),
+                                ('time_committed', 'Time Committed'),
+                                ('crime_type', 'Crime Type'),
+                                ('crime_classificaton', 'Classification'),
+                                ('suspect', 'Suspect'),
+                                ('victim', 'Victim'),
+                                ('status', 'Status'),
+                                ('narrative', 'Narrative'),
+                                ('batch_number', 'Batch Number')
+                            ] %}
+                            {% for col, label in columns %}
+                                <th>
+                                    <a href="?{{ request.query_string|safe|replace('sort_by=' ~ sort_by, 'sort_by=' ~ col)|replace('sort_dir=' ~ sort_dir, 'sort_dir=' ~ ('asc' if sort_by != col or sort_dir == 'desc' else 'desc')) }}">
+                                        {{ label }}
+                                        {% if sort_by == col %}
+                                            <span>{% if sort_dir == 'asc' %}▲{% else %}▼{% endif %}</span>
+                                        {% endif %}
+                                    </a>
+                                </th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in records %}
+                        <tr>
+                            <td>{{ r.crime_id }}</td>
+                            <td>{{ r.barangay }}</td>
+                            <td>{{ r.type_of_place }}</td>
+                            <td>{{ r.address }}</td>
+                            <td>{{ r.date_reported }}</td>
+                            <td>{{ r.time_reported }}</td>
+                            <td>{{ r.date_committed }}</td>
+                            <td>{{ r.time_committed }}</td>
+                            <td>{{ r.crime_type }}</td>
+                            <td>{{ r.crime_classificaton }}</td>
+                            <td>{{ r.suspect }}</td>
+                            <td>{{ r.victim }}</td>
+                            <td>{{ r.status }}</td>
+                            <td>{{ r.narrative }}</td>
+                            <td>{{ r.batch_number }}</td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="16" class="text-center">No records found.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% if pagination.pages > 1 %}
+            <nav aria-label="Crime data pagination">
+                <ul class="pagination justify-content-center mt-3">
+                    <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                        <a class="page-link" href="?{{ request.query_string|replace('page=' ~ pagination.page, 'page=' ~ (pagination.page-1)) if pagination.has_prev else '#' }}" tabindex="-1">Previous</a>
+                    </li>
+                    {% for p in range(1, pagination.pages + 1) %}
+                        <li class="page-item {% if pagination.page == p %}active{% endif %}">
+                            <a class="page-link" href="?{{ request.query_string|replace('page=' ~ pagination.page, 'page=' ~ p) if pagination.page != p else '#' }}">{{ p }}</a>
+                        </li>
+                    {% endfor %}
+                    <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                        <a class="page-link" href="?{{ request.query_string|replace('page=' ~ pagination.page, 'page=' ~ (pagination.page+1)) if pagination.has_next else '#' }}">Next</a>
+                    </li>
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if current_user.is_authenticated %}
+<div class="row justify-content-center mb-4">
+    <div class="col-md-10">
+        <div class="card shadow">
+            <div class="card-body">
+                <h2 class="text-center mb-3">LIPA CITY POLICE STATION</h2>
+                <h5 class="text-center mb-4">PNP P.A.T.R.O.L. Plan 2030 Roadmap<br><small class="text-muted">Peace and Order Agenda for Transformation and Upholding of the Rule-Of-Law</small></h5>
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <div class="card bg-light mb-3">
+                            <div class="card-header bg-primary text-white">MANDATE</div>
+                            <div class="card-body">
+                                <p class="card-text small">Republic Act 6975 as amended by RA 8551 and further amended by RA 9708</p>
+                            </div>
+                        </div>
+                        <div class="card bg-light mb-3">
+                            <div class="card-header bg-primary text-white">MISSION</div>
+                            <div class="card-body">
+                                <p class="card-text small">Enforce the law, prevent and control crimes, maintain peace and order, and ensure public safety and internal security with the active support of the community.</p>
+                            </div>
+                        </div>
+                        <div class="card bg-light mb-3">
+                            <div class="card-header bg-primary text-white">PHILOSOPHY</div>
+                            <div class="card-body">
+                                <p class="card-text small">Service, Honor and Justice</p>
+                            </div>
+                        </div>
+                        <div class="card bg-light mb-3">
+                            <div class="card-header bg-primary text-white">CORE VALUES</div>
+                            <div class="card-body">
+                                <ul class="small mb-0">
+                                    <li>Maka-Diyos (Pro-God)</li>
+                                    <li>Makabayan (Pro-Country)</li>
+                                    <li>Makatao (Pro-People)</li>
+                                    <li>Makakalikasan (Pro-Environment)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="card bg-light mb-3">
+                            <div class="card-header bg-success text-white">VISION</div>
+                            <div class="card-body">
+                                <p class="card-text small mb-0"><b>Imploring the aid of the Almighty, by 2030,</b> We shall be a highly capable, effective, and credible police service working in partnership with a responsive community towards the attainment of a safer place to live, work, and do business.</p>
+                            </div>
+                        </div>
+                        <div class="card bg-white mb-3">
+                            <div class="card-header bg-dark text-white text-center">Highly Capable, Effective, and Credible Police Service by 2030</div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-12 text-center mb-2">
+                                        <strong>COMMUNITY</strong><br>
+                                        <span class="small">A Safer Place to Live, Work, and do Business</span>
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-md-12">
+                                        <div class="d-flex flex-wrap justify-content-center">
+                                            <div class="p-2 m-1 bg-danger text-white rounded small">Improve Crime Prevention</div>
+                                            <div class="p-2 m-1 bg-danger text-white rounded small">Improve Crime Solution</div>
+                                            <div class="p-2 m-1 bg-danger text-white rounded small">Improve Human Rights-based, Community and Service-oriented Policing</div>
+                                            <div class="p-2 m-1 bg-danger text-white rounded small">Improve Support to Public Safety and Internal Security</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-md-12">
+                                        <div class="d-flex flex-wrap justify-content-center">
+                                            <div class="p-2 m-1 bg-success text-white rounded small">Recruit Quality Applicants</div>
+                                            <div class="p-2 m-1 bg-success text-white rounded small">Develop Competent, Motivated, Values-oriented and Disciplined PNP Personnel</div>
+                                            <div class="p-2 m-1 bg-success text-white rounded small">Develop a Responsive and Highly Professional Police Organization</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="d-flex flex-wrap justify-content-center">
+                                            <div class="p-2 m-1 bg-warning text-dark rounded small">Optimize Use of Financial and Logistical Resources</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mt-3">
+                                    <div class="col-md-12 text-center">
+                                        <span class="small text-muted">Stakeholder Collaboration | Usage of ICT</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="text-center">Welcome to Crime Visualization System</h3>
+            </div>
+            <div class="card-body">
+                <p class="text-center">Please log in or register to access the crime visualization features.</p>
+                <div class="text-center mt-4">
+                    <a href="{{ url_for('login') }}" class="btn btn-primary">Login</a>
+                    <a href="{{ url_for('register') }}" class="btn btn-secondary">Register</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %} 
